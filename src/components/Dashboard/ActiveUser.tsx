@@ -1,8 +1,9 @@
 "use client";
 
+import { useToggleUserStatusMutation } from "@/api/dashboardApi";
 import { User } from "@/types"; // Adjust path if types are in dashboardTypes.ts
 import Image from "next/image";
-import { useToggleUserStatusMutation } from "@/api/dashboardApi"; // Adjust path
+// Adjust path
 import toast from "react-hot-toast";
 
 interface UserTableProps {

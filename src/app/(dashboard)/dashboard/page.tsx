@@ -2,11 +2,10 @@
 
 import UserList from "@/components/Dashboard/UserList";
 import { UserCheck, UserPlus, Users, UserX } from "lucide-react";
-
-import { useGetDashboardDataQuery } from "@/api/dashboardApi";
 import toast from "react-hot-toast";
 import { User } from "@/types";
 import ActiveUser from "@/components/Dashboard/ActiveUser";
+import { useGetDashboardDataQuery } from "@/api/dashboardApi";
 
 const Dashboard = () => {
   const {
@@ -14,7 +13,7 @@ const Dashboard = () => {
     isLoading,
     isError,
     error,
-    refetch, // Allows manual refetching
+    refetch,
   } = useGetDashboardDataQuery();
 
   // Handle loading and error states

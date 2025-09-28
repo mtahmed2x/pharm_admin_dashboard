@@ -1,24 +1,20 @@
 // src/store/index.ts
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import { authApi } from "../api/authApi";
-import { dashboardApi } from "../api/dashboardApi"; // Import your new dashboard API
-import authReducer from "../features/authSlice";
+import { baseApi } from "../api/api"; // Import the single central API slice
+import authReducer from "../features/auth/authSlice";
 
 export const store = configureStore({
   reducer: {
-    [authApi.reducerPath]: authApi.reducer,
-    [dashboardApi.reducerPath]: dashboardApi.reducer, // Add dashboard API reducer
+    [baseApi.reducerPath]: baseApi.reducer,
     auth: authReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware()
-      .concat(authApi.middleware)
-      .concat(dashboardApi.middleware), // Add dashboard API middleware
+    getDefaultMiddleware().concat(baseApi.middleware),
   devTools: process.env.NODE_ENV !== "production",
 });
 
 export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.getState;
+export type AppDispatch = typeof store.dispatch;
 
 setupListeners(store.dispatch);

@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import banner from "../../../public/login-bg.png";
-import { useLoginMutation } from "../../api/authApi";
+
 import { useDispatch } from "react-redux";
-import { setCredentials } from "../../features/authSlice";
+
 import { LoginRequest } from "@/types";
 import { requestNotificationPermissionAndGetToken } from "@/utils/notificationUtils";
+import { useLoginMutation } from "@/api/authApi";
+import { setCredentials } from "@/features/auth/authSlice";
 
 type FormData = {
   email: string;

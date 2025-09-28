@@ -1,14 +1,7 @@
+import { baseApi } from "./api";
 import { ApiResponse, LoginRequest, LoginResponseData } from "@/types";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export const authApi = createApi({
-  reducerPath: "authApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:30000/api/v1/",
-    prepareHeaders: (headers, { getState }) => {
-      return headers;
-    },
-  }),
+export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<ApiResponse<LoginResponseData>, LoginRequest>({
       query: (credentials) => ({
@@ -17,7 +10,18 @@ export const authApi = createApi({
         body: credentials,
       }),
     }),
+
+    refreshToken: builder.mutation<
+      ApiResponse<LoginResponseData>,
+      { refreshToken: string }
+    >({
+      query: ({ refreshToken }) => ({
+        url: "auth/refresh",
+        method: "POST",
+        body: { refreshToken },
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation } = authApi;
+export const { useLoginMutation, useRefreshTokenMutation } = authApi;
