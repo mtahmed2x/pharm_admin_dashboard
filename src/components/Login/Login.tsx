@@ -6,6 +6,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import banner from "../../../public/login-bg.png";
+import { useLoginMutation } from "../../api/authApi";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../features/authSlice";
+import { LoginRequest } from "@/types";
+import { requestNotificationPermissionAndGetToken } from "@/utils/notificationUtils";
 
 type FormData = {
   email: string;
@@ -16,18 +21,80 @@ type FormData = {
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const dispatch = useDispatch();
 
-  // react-hook-form setup
+  // RTK Query login mutation hook
+  const [login, { isLoading, error }] = useLoginMutation();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setError, // To set form errors from the API response
   } = useForm<FormData>();
 
   // submit handler
-  const onSubmit = (data: FormData) => {
-    console.log("Form Data:", data);
-    router.push("/dashboard");
+  const onSubmit = async (data: FormData) => {
+    try {
+      const deviceToken = await requestNotificationPermissionAndGetToken();
+
+      if (!deviceToken) {
+        // You can decide how to handle this.
+        // Maybe alert the user that notifications won't work,
+        // but still allow them to log in.
+        console.warn(
+          "Could not get device token. Proceeding with login without it."
+        );
+      }
+      const loginRequest: LoginRequest = {
+        email: data.email,
+        password: data.password,
+        ...(deviceToken && { deviceToken }),
+      };
+
+      const response = await login(loginRequest).unwrap(); // .unwrap() throws an error if the request fails
+
+      if (response.success) {
+        // Dispatch credentials to the Redux store
+        dispatch(setCredentials(response.data));
+        router.push("/dashboard");
+      } else {
+        // Handle API-specific errors (e.g., wrong credentials)
+        setError("email", {
+          type: "manual",
+          message: response.message || "Login failed. Please try again.",
+        });
+        setError("password", {
+          type: "manual",
+          message: "", // Clear password error if email is the main issue
+        });
+      }
+    } catch (err: any) {
+      console.error("Login error:", err);
+      // Handle network errors or other unexpected errors
+      // The `error` object from useLoginMutation will also contain this
+      if (err.status === 401) {
+        setError("email", {
+          type: "manual",
+          message: "Invalid email or password.",
+        });
+        setError("password", {
+          type: "manual",
+          message: "",
+        });
+      } else {
+        setError("email", {
+          type: "manual",
+          message:
+            err.data?.message ||
+            "An unexpected error occurred. Please try again.",
+        });
+        setError("password", {
+          type: "manual",
+          message: "",
+        });
+      }
+    }
   };
 
   return (
@@ -123,9 +190,18 @@ const Login = () => {
               <button
                 type="submit"
                 className="w-full py-2 rounded bg-pink-400 text-white font-semibold hover:bg-pink-500 transition cursor-pointer"
+                disabled={isLoading} // Disable button while loading
               >
-                Log In
+                {isLoading ? "Logging in..." : "Log In"}
               </button>
+
+              {/* General error display (optional, if you have non-field-specific errors) */}
+              {error && "status" in error && error.status !== 401 && (
+                <p className="text-red-500 text-sm mt-3 text-center">
+                  An error occurred:{" "}
+                  {(error as any)?.data?.message || "Please try again."}
+                </p>
+              )}
             </form>
           </div>
         </div>
