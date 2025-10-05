@@ -51,11 +51,9 @@ const UserTable = ({ users }: UserTableProps) => {
         <table className="w-full border border-pink-200 rounded-2xl">
           <thead>
             <tr className="bg-fuchsia-100">
-              <th className="p-2 border border-pink-200">ID</th>
               <th className="p-2 border border-pink-200">Image</th>
               <th className="p-2 border border-pink-200">Name</th>
               <th className="p-2 border border-pink-200">Email</th>
-              <th className="p-2 border border-pink-200">Phone</th>
               <th className="p-2 border border-pink-200">Status</th>
               <th className="p-2 border border-pink-200">Action</th>
             </tr>
@@ -63,17 +61,19 @@ const UserTable = ({ users }: UserTableProps) => {
           <tbody>
             {users.map((user) => (
               <tr key={user._id} className="text-center">
-                <td className="p-2 border border-pink-200">{user._id}</td>
-                {/* <td className="p-1 border border-pink-200 flex justify-center">
+                <td className="p-1 border border-pink-200 flex justify-center">
                   <Image
-                    src={user.image || "/default-avatar.png"} // Provide a default image
-                    alt={user.name}
+                    src={
+                      user.avatar ||
+                      "https://i.postimg.cc/4xLZjmW2/dfb6892164e638fc869bc424d651235a519c6d80.png"
+                    }
+                    alt={user.firstName}
                     width={48}
                     height={48}
                     className="w-12 h-12 rounded-full object-cover"
                     quality={100}
                   />
-                </td> */}
+                </td>
                 <td className="p-2 border border-pink-200">{user.firstName}</td>
                 <td className="p-2 border border-pink-200">{user.email}</td>
                 <td className="p-2 border border-pink-200">

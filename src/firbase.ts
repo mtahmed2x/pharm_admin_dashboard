@@ -1,13 +1,14 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getMessaging, Messaging } from "firebase/messaging";
+
 const firebaseConfig = {
-  apiKey: "AIzaSyBe8SaShx7fAsylx8KXzCrP-rQ1LNIrPiM",
-  authDomain: "herpill-ed1e1.firebaseapp.com",
-  projectId: "herpill-ed1e1",
-  storageBucket: "herpill-ed1e1.firebasestorage.app",
-  messagingSenderId: "813249102643",
-  appId: "1:813249102643:web:5094f17a7add0387ff7446",
-  measurementId: "G-62ZE8ZJ251",
+  apiKey: "AIzaSyAjGB_zZn2IBsD7Se_AEMCnAx9jIUuzgPw",
+  authDomain: "herpill-cbce4.firebaseapp.com",
+  projectId: "herpill-cbce4",
+  storageBucket: "herpill-cbce4.firebasestorage.app",
+  messagingSenderId: "1025596603755",
+  appId: "1:1025596603755:web:ad86c2f401b305e0d4a02e",
+  measurementId: "G-DTJZGET6VV",
 };
 
 export const getFirebaseMessaging = (): Messaging | null => {

@@ -44,7 +44,6 @@ const Dashboard = () => {
     );
   }
 
-  // Ensure data exists and is successful
   if (!dashboardResponse || !dashboardResponse.success) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-500">

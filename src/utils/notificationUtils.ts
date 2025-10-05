@@ -2,7 +2,7 @@ import { getFirebaseMessaging } from "@/firbase";
 import { getToken } from "firebase/messaging";
 
 const VAPID_KEY =
-  "BCZcoQ_LLLVvQgN0NCKosovEE3-z87Pc607ULVd7PriaD0MeZ8J1g4pc4BZkWemPnkFgXwtsXciDxHGcHHeEjgU";
+  "BOH3qFFDPoX_3GWFqAnukpUPznWG1Wv7pkzHVJNVaU_tlaRcgSKSRMmMWXlge-PJ9O9m_MslLOPB6T57cBm5BGc";
 
 export const requestNotificationPermissionAndGetToken = async () => {
   // Call the getter to safely get the messaging instance

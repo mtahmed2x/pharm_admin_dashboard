@@ -104,7 +104,7 @@ const Page = () => {
           <span className="text-gray-700 font-medium">ID : {user.ID}</span>
         </div>
         <Link
-          href="/dashboard/message"
+          href="/dashboard/messages"
           className="bg-pink-200 text-pink-800 hover:bg-pink-400 hover:text-white px-4 py-2 rounded transition"
         >
           Send message

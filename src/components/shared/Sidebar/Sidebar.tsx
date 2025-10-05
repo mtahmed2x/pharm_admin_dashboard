@@ -121,7 +121,7 @@ const Sidebar = () => {
             </NavItem>
           </li>
           <li>
-            <NavItem href="/dashboard/message" icon={MessageCircleHeartIcon}>
+            <NavItem href="/dashboard/messages" icon={MessageCircleHeartIcon}>
               Message
             </NavItem>
           </li>
