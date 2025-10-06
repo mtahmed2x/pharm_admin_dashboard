@@ -1,7 +1,6 @@
 "use client";
-
-import UserList from "@/components/Dashboard/UserList";
-import { UserCheck, UserPlus, Users, UserX } from "lucide-react";
+import UserStat from "@/components/Dashboard/UserStat";
+import { UserCheck, UserPlus, Users, UserX, Ban } from "lucide-react";
 import toast from "react-hot-toast";
 import { User } from "@/types";
 import ActiveUser from "@/components/Dashboard/ActiveUser";
@@ -54,7 +53,6 @@ const Dashboard = () => {
 
   const { stats, monthlyStat, users } = dashboardResponse.data;
 
-  // Map API User to UserTableData for the table component
   const userTableData: User[] = users.map((user) => ({
     _id: user._id,
     email: user.email,
@@ -68,15 +66,15 @@ const Dashboard = () => {
     postcode: user.postcode,
     contraception: user.contraception,
     nhs: user.nhs,
-    // image: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`, // Placeholder image for now
     name: `${user.firstName} ${user.surname || ""}`.trim(),
-    phone: "N/A", // Your API doesn't provide phone, so using a placeholder
-    status: user.status, // Assuming 'verified' from API maps to 'status' in frontend
+    phoneNumber: user.phoneNumber,
+    blocked: user.blocked,
   }));
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
+      {/* Updated grid to support 5 columns on large screens */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16">
         {/* Total Users */}
         <div className="bg-white hover:bg-pink-200 rounded-xl shadow-md p-6 flex items-center gap-4 border-b-2 border-gray-400 group">
           <div className="p-4 bg-blue-50 rounded-full">
@@ -103,7 +101,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* New Request */}
+        {/* New Requests */}
         <div className="bg-white hover:bg-pink-200 rounded-xl shadow-md p-6 flex items-center gap-4 border-b-2 border-gray-400 group">
           <div className="p-4 bg-yellow-50 rounded-full">
             <UserPlus className="text-yellow-600 w-8 h-8" />
@@ -118,21 +116,33 @@ const Dashboard = () => {
 
         {/* Incomplete Users */}
         <div className="bg-white hover:bg-pink-200 rounded-xl shadow-md p-6 flex items-center gap-4 border-b-2 border-gray-400 group">
-          <div className="p-4 bg-red-50 rounded-full">
-            <UserX className="text-red-600 w-8 h-8" />
+          <div className="p-4 bg-orange-50 rounded-full">
+            <UserX className="text-orange-600 w-8 h-8" />
           </div>
           <div>
-            <p className="text-gray-600 text-md font-medium">
-              Incomplete Users
-            </p>
+            <p className="text-gray-600 text-md font-medium">Incomplete</p>
             <h2 className="text-2xl font-bold text-pink-400 group-hover:text-white">
               {stats.incompleteUsers.toLocaleString()}
             </h2>
           </div>
         </div>
+
+        {/* Blocked Users - New Card with Ban icon */}
+        <div className="bg-white hover:bg-pink-200 rounded-xl shadow-md p-6 flex items-center gap-4 border-b-2 border-gray-400 group">
+          <div className="p-4 bg-red-50 rounded-full">
+            <Ban className="text-red-600 w-8 h-8" />
+          </div>
+          <div>
+            <p className="text-gray-600 text-md font-medium">Blocked Users</p>
+            <h2 className="text-2xl font-bold text-pink-400 group-hover:text-white">
+              {stats.blockedUsers.toLocaleString()}
+            </h2>
+          </div>
+        </div>
       </div>
-      <UserList monthlyStats={monthlyStat} />
-      <ActiveUser users={userTableData} />{" "}
+
+      <UserStat monthlyStats={monthlyStat} />
+      <ActiveUser users={userTableData} />
     </div>
   );
 };

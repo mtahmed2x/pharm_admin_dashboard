@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircleHeartIcon } from "lucide-react";
+import { MessageCircleHeartIcon, Pill } from "lucide-react"; // <-- Import the Pill icon
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -81,14 +81,14 @@ const Sidebar = () => {
     <div className="w-72 h-screen bg-gradient-to-b from-[#fff5f7] to-[#ffeef2] shadow-lg fixed left-0 top-0 p-4 flex flex-col border-r border-pink-100">
       {/* Logo/Institution Name */}
       <Link
-        href="/"
-        className="flex justify-center gap-2 mb-8 p-4 border-b border-pink-200"
+        href="/dashboard"
+        className="flex items-center justify-center gap-2 mb-8 p-4 border-b border-pink-200"
       >
-        <div className="text-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-pink-600 bg-clip-text text-transparent">
-            herPILL
-          </h1>
-        </div>
+        {/* --- THIS IS THE NEW ICON --- */}
+        <Pill className="h-8 w-8 text-pink-500" />
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-pink-600 bg-clip-text text-transparent">
+          HerPill
+        </h1>
       </Link>
 
       {/* Navigation Links */}

@@ -28,7 +28,6 @@ export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
 export type UserRole = "admin" | "user";
 export type Gender = "male" | "female" | "not-stated" | "non-binary" | "other";
 export type Sex = "male" | "female";
-export type Status = "active" | "inactive";
 
 export interface User {
   _id: string;
@@ -39,13 +38,16 @@ export interface User {
   surname?: string;
   avatar?: string;
   dateOfBirth?: string;
+  phoneNumber: string;
   gender?: Gender;
   sex?: Sex;
   postcode?: string;
   nhs?: string;
   contraception?: string;
-  status: Status;
+  blocked: boolean;
   deviceTokens?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface LoginRequest {
@@ -63,8 +65,9 @@ export interface LoginResponseData {
 export interface DashboardStats {
   totalUsers: number;
   activeUsers: number;
-  newRequests: number;
   incompleteUsers: number;
+  blockedUsers: number;
+  newRequests: number;
 }
 
 export interface MonthlyUserStat {
@@ -80,6 +83,8 @@ export interface DashboardResponseData {
 }
 
 export type ProfileResponseData = User;
+
+export type AllUsersResponseData = PaginatedResponse<User>;
 
 export type UpdateAvatarRequest = {
   avatar: File;
@@ -114,3 +119,60 @@ export type SendImageRequest = {
 
 export type ChatsResponseData = PaginatedResponse<Chat>;
 export type MessagesResponseData = PaginatedResponse<Message>;
+
+export type ServiceStatus = "pending" | "accept" | "decline";
+
+export interface Cocp {
+  _id: string;
+  userId: User | string;
+
+  consent: boolean;
+  shareConsent: boolean;
+  speakWithSpecialist: boolean;
+  medicalHistory: string[];
+  medicalDetails: string;
+  isPregnant: boolean;
+
+  drugs: string[];
+  cocp: string;
+
+  exclusions: string;
+  needAppointment: boolean;
+
+  bloodPreasureStatus: string;
+
+  bmi: number;
+  systolic: number;
+  diastolic: number;
+
+  weightChecked: boolean;
+  comment: string;
+
+  status: ServiceStatus;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Pop {
+  _id: string;
+  userId: User | string;
+
+  consent: boolean;
+  shareConsent: boolean;
+  speakWithSpecialist: boolean;
+  medicalHistory: string[];
+  medicalDetails: string;
+  isPregnant: boolean;
+
+  popOptions: string;
+
+  exclusions: string;
+  needAppointment: boolean;
+
+  status: ServiceStatus;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type AllPopsResponseData = PaginatedResponse<Pop>;
+export type AllCocpsResponseData = PaginatedResponse<Cocp>;

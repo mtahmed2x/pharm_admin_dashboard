@@ -1,6 +1,5 @@
-// src/components/Dashboard/UserList.tsx
 "use client";
-import { MonthlyUserStat } from "@/types"; // Adjust path
+import { MonthlyUserStat } from "@/types";
 import {
   Bar,
   BarChart,
@@ -21,7 +20,8 @@ const UserList = ({ monthlyStats }: UserListProps) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-8 mx-5">
         <h2 className="text-black font-semibold text-lg">
-          User list <span className="font-normal text-gray-500">Last Year</span>
+          User Stats{" "}
+          <span className="font-normal text-gray-500">(Last Year)</span>
         </h2>
       </div>
 

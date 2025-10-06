@@ -1,5 +1,5 @@
 import { baseApi } from "./api";
-import { ApiResponse, DashboardResponseData } from "@/types";
+import { ApiResponse, DashboardResponseData, User } from "@/types";
 
 export const dashboardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -9,13 +9,13 @@ export const dashboardApi = baseApi.injectEndpoints({
     }),
 
     toggleUserStatus: builder.mutation<
-      ApiResponse<DashboardResponseData>,
-      { id: string; status: boolean }
+      ApiResponse<User>,
+      { id: string; blocked: boolean }
     >({
-      query: ({ id, status }) => ({
-        url: `users/${id}/status`,
-        method: "PATCH",
-        body: { status: status ? "active" : "inactive" },
+      query: ({ id, blocked }) => ({
+        url: `user/update-blocked-status/${id}`,
+        method: "POST",
+        body: { blocked },
       }),
       invalidatesTags: ["Dashboard"],
     }),

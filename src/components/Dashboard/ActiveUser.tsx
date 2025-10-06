@@ -1,36 +1,27 @@
 "use client";
-
 import { useToggleUserStatusMutation } from "@/api/dashboardApi";
-import { User } from "@/types"; // Adjust path if types are in dashboardTypes.ts
+import { User } from "@/types";
 import Image from "next/image";
-// Adjust path
+import Link from "next/link";
 import toast from "react-hot-toast";
 
 interface UserTableProps {
   users: User[];
-  // If you want to refetch all dashboard data after status change,
-  // you might pass a refetch function or invalidate tags in RTK Query
 }
 
 const UserTable = ({ users }: UserTableProps) => {
   const [toggleUserStatus, { isLoading: isTogglingStatus }] =
     useToggleUserStatusMutation();
 
-  // Handle toggling status via API
-  const handleToggle = async (id: string, currentStatus: boolean) => {
+  const handleToggle = async (id: string, currentBlockedStatus: boolean) => {
     try {
-      // Map frontend boolean status to backend string status
-      const newBackendStatus = currentStatus ? "inactive" : "active";
       const response = await toggleUserStatus({
         id,
-        status: !currentStatus, // Send the new status (opposite of current)
+        blocked: !currentBlockedStatus,
       }).unwrap();
 
       if (response.success) {
         toast.success(response.message || "User status updated successfully!");
-        // RTK Query's cache invalidation (if configured with 'invalidatesTags')
-        // would automatically refetch the dashboard data here.
-        // If not, you might manually trigger a refetch of getDashboardData.
       } else {
         toast.error(response.message || "Failed to update user status.");
       }
@@ -78,34 +69,32 @@ const UserTable = ({ users }: UserTableProps) => {
                 <td className="p-2 border border-pink-200">{user.email}</td>
                 <td className="p-2 border border-pink-200">
                   <div className="w-full flex gap-5  justify-center items-center px-4 py-2">
-                    <span>{user.status ? "Active" : "Inactive"}</span>
+                    <span>{user.blocked ? "Unblock" : "Block"}</span>
                     <label className="relative inline-flex items-center cursor-pointer">
+                      {/* The hidden checkbox that holds the actual state */}
                       <input
                         type="checkbox"
-                        className="sr-only"
-                        checked={user.status === "active"}
-                        onChange={() =>
-                          handleToggle(user._id, user.status === "active")
-                        }
-                        disabled={isTogglingStatus} // Disable toggle while status is being updated
+                        className="sr-only peer"
+                        checked={user.blocked}
+                        onChange={() => handleToggle(user._id, user.blocked)}
+                        disabled={isTogglingStatus}
                       />
-                      <div
-                        className={`w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-pink-300 ${
-                          user.status ? "bg-pink-400" : ""
-                        }`}
-                      ></div>
-                      <div
-                        className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${
-                          user.status ? "translate-x-5" : ""
-                        }`}
-                      ></div>
+                      {/* The background track of the toggle */}
+                      {/* Default state (to block) is red */}
+                      {/* Checked state (to unblock) is green */}
+                      <div className="w-11 h-6 bg-red-500 rounded-full transition-colors peer-focus:ring-2 peer-focus:ring-pink-300 peer-checked:bg-green-500"></div>
+                      {/* The moving dot/handle */}
+                      <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-full"></div>
                     </label>
                   </div>
                 </td>
                 <td className="p-2 border border-pink-200">
-                  <button className="px-3 py-1 bg-transparent hover:bg-pink-400 text-gray-700 hover:text-white rounded border border-pink-400">
+                  <Link
+                    href={`/dashboard/user/${user._id}`}
+                    className="px-3 py-1 bg-transparent hover:bg-pink-400 text-gray-700 hover:text-white rounded border border-pink-400 transition-colors"
+                  >
                     Details
-                  </button>
+                  </Link>
                 </td>
               </tr>
             ))}

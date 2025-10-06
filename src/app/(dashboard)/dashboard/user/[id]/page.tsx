@@ -1,280 +1,185 @@
 "use client";
 
-import { UserFormData, UserTableData } from "@/types/dashboardTypes";
-import { User } from "lucide-react";
+import { useGetUserByIdQuery } from "@/api/userApi";
+import {
+  User as UserIcon,
+  Calendar,
+  Mail,
+  Phone,
+  CheckCircle,
+  XCircle,
+  ArrowLeft, // <-- Import the icon for the back button
+} from "lucide-react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation"; // <-- Import useRouter
 
-const Page = () => {
-  const { id } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<UserTableData | null>(null);
+// A reusable component to display user details neatly
+const DetailItem = ({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | null | boolean;
+}) => {
+  const displayValue =
+    value === null || value === undefined || value === ""
+      ? "Not Provided"
+      : String(value);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<UserFormData>();
-
-  // fetch user data by id
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("/users.json");
-        const data = await res.json();
-
-        const user = data.find((u: UserTableData) => u._id === id);
-
-        if (user) {
-          setUser(user);
-          // Map the JSON data to form fields
-          reset({
-            fullName: user.name,
-            email: user.email,
-            phone: user.phone,
-            postCode: "",
-            joinedOn: "",
-            gender: "",
-            address: "",
-            sexAssigned: "",
-            nhs: "",
-            gpSurgery: "",
-            contraception: "",
-            image: user.image,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [id, reset]);
-
-  const onSubmit = (data: UserFormData) => {
-    console.log("Form Submitted:", data);
-    alert("Profile updated!");
-  };
-
-  if (loading) {
-    return <p className="p-6">Loading user data...</p>;
-  }
-
-  if (!user) {
-    return <p className="p-6">User not found</p>;
+  // Special handling for boolean values
+  if (typeof value === "boolean") {
+    return (
+      <div>
+        <p className="text-sm text-gray-500">{label}</p>
+        <div
+          className={`flex items-center gap-2 mt-1 ${
+            value ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {value ? <CheckCircle size={18} /> : <XCircle size={18} />}
+          <p className="font-semibold">{value ? "Yes" : "No"}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-6 bg-pink-50 min-h-screen">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-        <User className="w-4 h-4" />
-        <span>Users</span>
-        <span className="text-pink-400">/ {user.ID}</span>
-      </div>
-
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-semibold text-gray-800">{user.name}</h1>
-        <button className="bg-pink-200 text-pink-800 hover:bg-pink-400 hover:text-white px-4 py-2 rounded-lg transition">
-          Send message
-        </button>
-      </div>
-
-      {/* Profile Picture */}
-      <div className="items-center gap-6 mb-10">
-        <p className="font-medium text-gray-700">Profile Picture</p>
-        <Image
-          src={user.image || "https://i.pravatar.cc/150?img=12"}
-          alt="Profile Picture"
-          width={80}
-          height={80}
-          className="rounded-full object-cover"
-        />
-      </div>
-
-      {/* Form */}
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
-      >
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Full Name
-          </label>
-          <input
-            {...register("fullName", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.fullName && (
-            <p className="text-red-500 text-sm">Full name is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Email
-          </label>
-          <input
-            type="email"
-            {...register("email", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm">Email is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Phone Number
-          </label>
-          <input
-            {...register("phone", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.phone && (
-            <p className="text-red-500 text-sm">Phone number is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Post code
-          </label>
-          <input
-            {...register("postCode", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.postCode && (
-            <p className="text-red-500 text-sm">Post code is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Joined on
-          </label>
-          <input
-            type="date"
-            {...register("joinedOn", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.joinedOn && (
-            <p className="text-red-500 text-sm">Join date is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Gender
-          </label>
-          <select
-            {...register("gender", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-          {errors.gender && (
-            <p className="text-red-500 text-sm">Gender is required</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Sex assigned at birth
-          </label>
-          <select
-            {...register("sexAssigned", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          >
-            <option value="">Select</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="intersex">Intersex</option>
-          </select>
-          {errors.sexAssigned && (
-            <p className="text-red-500 text-sm">This field is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            NHS no
-          </label>
-          <input
-            {...register("nhs", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.nhs && (
-            <p className="text-red-500 text-sm">NHS number is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Current GP surgery
-          </label>
-          <input
-            {...register("gpSurgery", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.gpSurgery && (
-            <p className="text-red-500 text-sm">GP surgery is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Who will take the contraception
-          </label>
-          <input
-            {...register("contraception", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.contraception && (
-            <p className="text-red-500 text-sm">This field is required</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Address
-          </label>
-          <textarea
-            {...register("address", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-            rows={3}
-          />
-          {errors.address && (
-            <p className="text-red-500 text-sm">Address is required</p>
-          )}
-        </div>
-
-        {/* Buttons */}
-        <div className="col-span-2 flex justify-end gap-4 mt-6">
-          <button
-            type="button"
-            className="px-6 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100"
-          >
-            Back
-          </button>
-          <button
-            type="submit"
-            className="px-6 py-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600"
-          >
-            Update
-          </button>
-        </div>
-      </form>
+    <div>
+      <p className="text-sm text-gray-500">{label}</p>
+      <p className="font-semibold text-gray-800 mt-1">{displayValue}</p>
     </div>
   );
 };
 
-export default Page;
+const UserDetailsPage = () => {
+  const params = useParams();
+  const router = useRouter(); // <-- Initialize the router
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  const {
+    data: userResponse,
+    isLoading,
+    isError,
+    error,
+  } = useGetUserByIdQuery(id!, {
+    skip: !id,
+  });
+
+  // Handle Loading State
+  if (isLoading) {
+    return (
+      <p className="p-8 text-center text-pink-500">Loading user data...</p>
+    );
+  }
+
+  // Handle Error State
+  if (isError || !userResponse?.success) {
+    console.error("Error fetching user:", error || userResponse?.message);
+    return (
+      <p className="p-8 text-center text-red-500">
+        User not found or failed to load.
+      </p>
+    );
+  }
+
+  const user = userResponse.data;
+
+  // Format the join date
+  const joinedOn = new Date(user.createdAt!).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  return (
+    <div className="p-6 bg-pink-50 min-h-screen text-gray-800">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+        <div>
+          {/* --- THIS IS THE NEW BACK BUTTON --- */}
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-sm text-gray-500 hover:text-pink-500 mb-2 transition-colors"
+          >
+            <ArrowLeft size={16} />
+            Back to User List
+          </button>
+          <h1 className="text-3xl font-bold text-gray-800">
+            {`${user.firstName} ${user.surname || ""}`.trim()}
+          </h1>
+        </div>
+        <button className="bg-pink-200 text-pink-800 hover:bg-pink-400 hover:text-white px-4 py-2 rounded-lg transition mt-4 md:mt-0">
+          Send Message
+        </button>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="bg-white p-8 rounded-xl shadow-md">
+        {/* User Profile Header */}
+        <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-gray-200">
+          <Image
+            src={
+              user.avatar ||
+              "https://i.postimg.cc/4xLZjmW2/dfb6892164e638fc869bc424d651235a519c6d80.png"
+            }
+            alt="Profile Picture"
+            width={100}
+            height={100}
+            className="rounded-full object-cover border-4 border-pink-100"
+          />
+          <div className="text-center sm:text-left">
+            <h2 className="text-2xl font-semibold">
+              {`${user.firstName} ${user.surname || ""}`.trim()}
+            </h2>
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-500 mt-1">
+              <Mail size={16} />
+              <span>{user.email}</span>
+            </div>
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-500 mt-1">
+              <Phone size={16} />
+              <span>{user.phoneNumber || "No phone number"}</span>
+            </div>
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-500 mt-1">
+              <Calendar size={16} />
+              <span>Joined on {joinedOn}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* User Details Grid */}
+        <div className="mt-8">
+          <h3 className="text-xl font-semibold mb-6">
+            Personal & Medical Information
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <DetailItem label="First Name" value={user.firstName} />
+            <DetailItem label="Surname" value={user.surname} />
+            <DetailItem label="Email Address" value={user.email} />
+            <DetailItem label="Phone Number" value={user.phoneNumber} />
+            <DetailItem
+              label="Date of Birth"
+              value={
+                user.dateOfBirth
+                  ? new Date(user.dateOfBirth).toLocaleDateString()
+                  : null
+              }
+            />
+            <DetailItem label="Gender" value={user.gender} />
+            <DetailItem label="Sex Assigned at Birth" value={user.sex} />
+            <DetailItem label="Postcode" value={user.postcode} />
+            <DetailItem label="NHS Number" value={user.nhs} />
+            <DetailItem
+              label="Contraception Preference"
+              value={user.contraception}
+            />
+            <DetailItem label="Account Verified" value={user.verified} />
+            <DetailItem label="Account Blocked" value={user.blocked} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default UserDetailsPage;

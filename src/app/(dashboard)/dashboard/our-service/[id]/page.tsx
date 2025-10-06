@@ -1,292 +1,267 @@
 "use client";
 
-import { ServiceData, UserFormData } from "@/types/dashboardTypes";
+import { useGetPopByIdQuery, useGetCocpByIdQuery } from "@/api/serviceApi";
+import { Pop, Cocp, User } from "@/types";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import {
+  ArrowLeft,
+  CheckCircle,
+  XCircle,
+  Calendar,
+  Mail,
+  Phone,
+  Pill,
+  User as UserIcon,
+} from "lucide-react";
+import toast from "react-hot-toast";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 
-const Page = () => {
-  const { id } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<ServiceData | null>(null);
+// Reusable component for displaying key-value pairs
+const DetailItem = ({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | string[] | boolean | number | null;
+}) => {
+  let displayValue: React.ReactNode = "Not Provided";
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<UserFormData>();
-
-  // fetch user data by id
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("/service.json");
-        const data = await res.json();
-
-        const user = data.find((u: ServiceData) => u._id === id);
-
-        if (user) {
-          setUser(user);
-          // Map the JSON data to form fields
-          reset({
-            fullName: user.name,
-            email: user.email,
-            phone: user.phone,
-            postCode: user.postCode,
-            joinedOn: user.joinedOn,
-            gender: user.gender,
-            address: user.address,
-            sexAssigned: user.sexAssigned,
-            nhs: user.nhs,
-            gpSurgery: user.gpSurgery,
-            contraception: user.contraception,
-            image: user.image,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [id, reset]);
-
-  const onSubmit = (data: UserFormData) => {
-    console.log("Form Submitted:", data);
-    alert("Profile updated!");
-  };
-
-  // ✅ Accept function (like permission approval)
-  // const handleAccept = (id: string) => {
-  //   Swal.fire({
-  //     title: "Accept this request?",
-  //     text: "The user will be granted permission.",
-  //     icon: "question",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#3085d6",
-  //     cancelButtonColor: "#aaa",
-  //     confirmButtonText: "Yes, accept it!",
-  //   }).then(async (result) => {
-  //     if (result.isConfirmed) {
-  //       // Example API call to update status → you can change endpoint
-  //       const res = await axios.patch(`/api/users/${id}`, { status: true });
-  //       if (res.data.modifiedCount > 0) {
-  //         setUsers(
-  //           users.map((u) => (u._id === id ? { ...u, status: true } : u))
-  //         );
-  //         toast.success("User request accepted!");
-  //         Swal.fire("Accepted!", "The request has been approved.", "success");
-  //       }
-  //     }
-  //   });
-  // };
-
-  if (loading) {
-    return <p className="p-6">Loading user data...</p>;
-  }
-
-  if (!user) {
-    return <p className="p-6">User not found</p>;
+  if (value === true || value === false) {
+    displayValue = (
+      <div
+        className={`flex items-center gap-1.5 font-semibold ${
+          value ? "text-green-600" : "text-red-600"
+        }`}
+      >
+        {value ? <CheckCircle size={16} /> : <XCircle size={16} />}
+        <span>{value ? "Yes" : "No"}</span>
+      </div>
+    );
+  } else if (Array.isArray(value) && value.length > 0) {
+    displayValue = value.join(", ");
+  } else if (value) {
+    displayValue = String(value);
   }
 
   return (
-    <div className="p-6 bg-pink-50/70 min-h-screen">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-800">
-            Service request of {user.serviceType}
-          </h1>
-          <span className="text-gray-700 font-medium">ID : {user.ID}</span>
-        </div>
-        <Link
-          href="/dashboard/messages"
-          className="bg-pink-200 text-pink-800 hover:bg-pink-400 hover:text-white px-4 py-2 rounded transition"
-        >
-          Send message
-        </Link>
-      </div>
-      {/* Form */}
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
-      >
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Full Name
-          </label>
-          <input
-            {...register("fullName", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.fullName && (
-            <p className="text-red-500 text-sm">Full name is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Email
-          </label>
-          <input
-            type="email"
-            {...register("email", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm">Email is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Phone Number
-          </label>
-          <input
-            {...register("phone", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.phone && (
-            <p className="text-red-500 text-sm">Phone number is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Post code
-          </label>
-          <input
-            {...register("postCode", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.postCode && (
-            <p className="text-red-500 text-sm">Post code is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Joined on
-          </label>
-          <input
-            type="date"
-            {...register("joinedOn", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.joinedOn && (
-            <p className="text-red-500 text-sm">Join date is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Gender
-          </label>
-          <select
-            {...register("gender", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-          {errors.gender && (
-            <p className="text-red-500 text-sm">Gender is required</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Sex assigned at birth
-          </label>
-          <select
-            {...register("sexAssigned", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          >
-            <option value="">Select</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="intersex">Intersex</option>
-          </select>
-          {errors.sexAssigned && (
-            <p className="text-red-500 text-sm">This field is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            NHS no
-          </label>
-          <input
-            {...register("nhs", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.nhs && (
-            <p className="text-red-500 text-sm">NHS number is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Current GP surgery
-          </label>
-          <input
-            {...register("gpSurgery", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.gpSurgery && (
-            <p className="text-red-500 text-sm">GP surgery is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Who will take the contraception
-          </label>
-          <input
-            {...register("contraception", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-          />
-          {errors.contraception && (
-            <p className="text-red-500 text-sm">This field is required</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-md text-gray-700 font-medium">
-            Address
-          </label>
-          <textarea
-            {...register("address", { required: true })}
-            className="mt-1 w-full bg-white border border-pink-300 rounded px-3 py-2 focus:outline-2 focus:outline-pink-500 text-gray-500"
-            rows={3}
-          />
-          {errors.address && (
-            <p className="text-red-500 text-sm">Address is required</p>
-          )}
-        </div>
-
-        {/* Buttons */}
-        <div className="col-span-2 flex justify-end gap-4 mt-6">
-          <Link
-            href="/dashboard/our-service"
-            className="px-6 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100"
-          >
-            Back
-          </Link>
-          <button
-            type="submit"
-            className="px-6 py-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600"
-          >
-            Update
-          </button>
-        </div>
-      </form>
+    <div>
+      <p className="text-sm text-gray-500">{label}</p>
+      <p className="text-gray-800 font-medium mt-1 break-words">
+        {displayValue}
+      </p>
     </div>
   );
 };
 
-export default Page;
+const ServiceDetailsPage = () => {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const id = params.id as string;
+  const type = searchParams.get("type"); // 'pop' or 'cocp'
+
+  // Conditionally fetch data based on the 'type' query parameter
+  const {
+    data: popResponse,
+    isLoading: isPopLoading,
+    isError: isPopError,
+  } = useGetPopByIdQuery(id, { skip: type !== "pop" });
+  const {
+    data: cocpResponse,
+    isLoading: isCocpLoading,
+    isError: isCocpError,
+  } = useGetCocpByIdQuery(id, { skip: type !== "cocp" });
+
+  const isLoading = isPopLoading || isCocpLoading;
+  const isError = isPopError || isCocpError;
+  const response = type === "pop" ? popResponse : cocpResponse;
+
+  if (!type) {
+    return (
+      <div className="p-8 text-center text-red-500">
+        Error: Service type is missing from the URL.
+      </div>
+    );
+  }
+  if (isLoading) {
+    return (
+      <div className="p-8 text-center text-pink-500">
+        Loading service request details...
+      </div>
+    );
+  }
+  if (isError || !response?.success) {
+    toast.error("Failed to load service details.");
+    return (
+      <div className="p-8 text-center text-red-500">
+        Could not find the requested service.
+      </div>
+    );
+  }
+
+  const requestData = response.data as Pop | Cocp;
+  const user = requestData.userId as User;
+  const requestType = type.toUpperCase();
+
+  const joinedOn = new Date(user.createdAt!).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  return (
+    <div className="p-6 bg-pink-50/70 min-h-screen text-gray-800">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-sm text-gray-500 hover:text-pink-500 mb-2"
+          >
+            <ArrowLeft size={16} />
+            Back to Service List
+          </button>
+          <h1 className="text-3xl font-bold text-gray-800">
+            {requestType} Request Details
+          </h1>
+        </div>
+        <Link
+          href="/dashboard/messages"
+          className="bg-pink-200 text-pink-800 hover:bg-pink-400 hover:text-white px-4 py-2 rounded-lg transition"
+        >
+          Send Message
+        </Link>
+      </div>
+
+      {/* Main Content Card */}
+      <div className="bg-white p-8 rounded-xl shadow-md space-y-10">
+        {/* User Profile Section */}
+        <section>
+          <h2 className="text-xl font-semibold mb-6 flex items-center gap-3">
+            <UserIcon /> User Information
+          </h2>
+          <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-gray-200">
+            <Image
+              src={
+                user.avatar ||
+                "https://i.postimg.cc/4xLZjmW2/dfb6892164e638fc869bc424d651235a519c6d80.png"
+              }
+              alt="Profile Picture"
+              width={100}
+              height={100}
+              className="rounded-full object-cover border-4 border-pink-100"
+            />
+            <div className="text-center sm:text-left grid gap-1">
+              <h3 className="text-2xl font-bold">
+                {`${user.firstName} ${user.surname || ""}`.trim()}
+              </h3>
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-500">
+                <Mail size={16} />
+                <span>{user.email}</span>
+              </div>
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-500">
+                <Phone size={16} />
+                <span>{user.phoneNumber || "Not Provided"}</span>
+              </div>
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-500">
+                <Calendar size={16} />
+                <span>Joined on {joinedOn}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Request Details Section */}
+        <section>
+          <h2 className="text-xl font-semibold mb-6 flex items-center gap-3">
+            <Pill /> Contraception Request Details
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Common Fields */}
+            <DetailItem label="Consent Given" value={requestData.consent} />
+            <DetailItem
+              label="Consent to Share with GP"
+              value={requestData.shareConsent}
+            />
+            <DetailItem
+              label="Wants to Speak with Specialist"
+              value={requestData.speakWithSpecialist}
+            />
+            <DetailItem
+              label="Medical History"
+              value={requestData.medicalHistory}
+            />
+            <DetailItem
+              label="Medical Details"
+              value={requestData.medicalDetails}
+            />
+            <DetailItem
+              label="Currently Pregnant"
+              value={requestData.isPregnant}
+            />
+            <DetailItem
+              label="Exclusions Noted"
+              value={requestData.exclusions}
+            />
+            <DetailItem
+              label="Appointment Needed"
+              value={requestData.needAppointment}
+            />
+            <DetailItem
+              label="Request Status"
+              value={
+                requestData.status.charAt(0).toUpperCase() +
+                requestData.status.slice(1)
+              }
+            />
+
+            {/* Conditional Fields for POP vs COCP */}
+            {type === "pop" && (
+              <DetailItem
+                label="POP Choice"
+                value={(requestData as Pop).popOptions}
+              />
+            )}
+            {type === "cocp" && (
+              <>
+                <DetailItem
+                  label="COCP Choice"
+                  value={(requestData as Cocp).cocp}
+                />
+                <DetailItem
+                  label="Other Drugs"
+                  value={(requestData as Cocp).drugs}
+                />
+                <DetailItem
+                  label="Blood Pressure Status"
+                  value={(requestData as Cocp).bloodPreasureStatus}
+                />
+                <DetailItem label="BMI" value={(requestData as Cocp).bmi} />
+                <DetailItem
+                  label="Systolic BP"
+                  value={(requestData as Cocp).systolic}
+                />
+                <DetailItem
+                  label="Diastolic BP"
+                  value={(requestData as Cocp).diastolic}
+                />
+                <DetailItem
+                  label="Weight Recently Checked"
+                  value={(requestData as Cocp).weightChecked}
+                />
+                <DetailItem
+                  label="Additional Comments"
+                  value={(requestData as Cocp).comment}
+                />
+              </>
+            )}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+};
+
+export default ServiceDetailsPage;
